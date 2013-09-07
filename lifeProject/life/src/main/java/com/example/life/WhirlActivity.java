@@ -8,10 +8,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.SurfaceView;
-import android.view.WindowManager;
 import android.graphics.Color;
 import java.util.Random;
-
+import android.view.WindowManager;
 
 public class WhirlActivity extends Activity {
 
@@ -25,10 +24,9 @@ public class WhirlActivity extends Activity {
         int[][] colors;
         Thread thread = null;
         volatile boolean thread_is_running = true;
-        int cnt = 0;
         SurfaceHolder surfaceHolder;
         long start_time, end_time;
-
+        int[][] new_step_field;
 
         public WhirlView(Context context) {
             super(context);
@@ -71,38 +69,31 @@ public class WhirlActivity extends Activity {
 
 
 
-        public void recount() {
-
-            int[][] new_step_feild = new int[WIDTH][HEIGHT];
+        public void recount(){
+            new_step_field = new int[WIDTH][HEIGHT];
             for (int i = 0; i < WIDTH; ++i) {
                 for (int j = 0; j < HEIGHT; ++j) {
-                    new_step_feild[i][j] = field[i][j];
-                }
-            }
-            for (int i = 0; i < WIDTH; ++i) {
-                for (int j = 0; j < HEIGHT; ++j) {
-                    if (i < WIDTH - 1 && (field[i + 1][j] + 1) % 16 == field[i][j]) {
-                        new_step_feild[i][j] = field[i + 1][j];
-                    } else if (j < HEIGHT - 1 && (field[i][j + 1] + 1) % 16 == field[i][j]) {
-                        new_step_feild[i][j] = field[i][j + 1];
-                    } else if (i < WIDTH - 1 && j < HEIGHT - 1 && (field[i + 1][j + 1] + 1) % 16 == field[i][j]) {
-                        new_step_feild[i][j] = field[i + 1][j + 1];
-                    } else if (i > 0 && (field[i - 1][j] + 1) % 16 == field[i][j]) {
-                        new_step_feild[i][j] = field[i - 1][j];
-                    } else if (j > 0 && (field[i][j - 1] + 1) % 16 == field[i][j]) {
-                        new_step_feild[i][j] = field[i][j - 1];
-                    } else if (i > 0 && j > 0 && (field[i - 1][j - 1] + 1) % 16 == field[i][j]) {
-                        new_step_feild[i][j] = field[i - 1][j - 1];
-                    } else if (i > 0 && j < HEIGHT - 1 && (field[i - 1][j + 1] + 1) % 16 == field[i][j]) {
-                        new_step_feild[i][j] = field[i - 1][j + 1];
-                    } else if (i < WIDTH - 1 && j > 0 && (field[i + 1][j - 1] + 1) % 16 == field[i][j]) {
-                        new_step_feild[i][j] = field[i + 1][j - 1];
+                    new_step_field[i][j] = field[i][j];
+                    if (i < WIDTH - 1 && (field[i][j] + 1) % 16 == field[i + 1][j]) {
+                        new_step_field[i][j] = field[i + 1][j];
+                    } else if (j < HEIGHT - 1 && (field[i][j] + 1) % 16 == field[i][j + 1]) {
+                        new_step_field[i][j] = field[i][j + 1];
+                    } else if (i < WIDTH - 1 && j < HEIGHT - 1 && (field[i][j] + 1) % 16 == field[i + 1][j + 1]) {
+                        new_step_field[i][j] = field[i + 1][j + 1];
+                    } else if (i > 0 && (field[i][j] + 1) % 16 == field[i - 1][j]) {
+                        new_step_field[i][j] = field[i - 1][j];
+                    } else if (j > 0 && (field[i][j] + 1) % 16 == field[i][j - 1]) {
+                        new_step_field[i][j] = field[i][j - 1];
+                    } else if (i > 0 && j > 0 && (field[i][j] + 1) % 16 == field[i - 1][j - 1]) {
+                        new_step_field[i][j] = field[i - 1][j - 1];
+                    } else if (i > 0 && j < HEIGHT - 1 && (field[i][j] + 1) % 16 == field[i - 1][j + 1]) {
+                        new_step_field[i][j] = field[i - 1][j + 1];
+                    } else if (i < WIDTH - 1 && j > 0 && (field[i][j] + 1) % 16 == field[i + 1][j - 1]) {
+                        new_step_field[i][j] = field[i + 1][j - 1];
                     }
-
                 }
-
-                field = new_step_feild;
             }
+            field = new_step_field;
         }
 
         public void run() {
@@ -123,6 +114,9 @@ public class WhirlActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(new WhirlView(this));
 
     }
