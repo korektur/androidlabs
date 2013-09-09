@@ -17,28 +17,24 @@ public class WhirlActivity extends Activity {
 
     class WhirlView extends SurfaceView implements Runnable {
         Paint p;
-        int WIDTH = 240;
-        int HEIGHT = 320;
-        int num_of_colors = 16;
+        final int  WIDTH = 240;
+        final int HEIGHT = 320;
+        final int num_of_colors = 12;
         int[][] field;
-        int[][] colors;
+        int[] colors = {Color.GREEN, Color.YELLOW, Color.BLUE, Color.GRAY, Color.CYAN, Color.RED, Color.WHITE, Color.BLACK, Color.DKGRAY, Color.LTGRAY, Color.MAGENTA,
+                          Color.TRANSPARENT};
         Thread thread = null;
         volatile boolean thread_is_running = true;
         SurfaceHolder surfaceHolder;
         long start_time, end_time;
         int[][] new_step_field;
+        Canvas canvas;
 
         public WhirlView(Context context) {
             super(context);
             p = new Paint();
             field = new int[WIDTH][HEIGHT];
             Random rand = new Random();
-            colors = new int[num_of_colors][4];
-            for(int i = 0; i < num_of_colors; ++i){
-                for(int j = 0; j < 4; ++j){
-                    colors[i][j] = rand.nextInt(256);
-                }
-            }
             for (int i = 0; i < WIDTH; ++i)
                 for (int j = 0; j < HEIGHT; ++j) {
                     field[i][j] = rand.nextInt(num_of_colors);
@@ -53,8 +49,9 @@ public class WhirlActivity extends Activity {
         public void onDraw(Canvas canvas) {
             for (int i = 0; i < WIDTH; ++i) {
                 for (int j = 0; j < HEIGHT; ++j) {
-                    p.setARGB(colors[field[i][j]][0], colors[field[i][j]][1], colors[field[i][j]][2], colors[field[i][j]][3]);
+                    p.setColor(colors[field[i][j]]);
                     canvas.drawRect(3 * i, 4 * j, 3 * (i + 1), 4 * (j + 1), p);
+                    //canvas.drawBitmap(colors, field[i][j], 1, i, j, 3, 4, false, p);
 
                 }
             }
@@ -70,25 +67,25 @@ public class WhirlActivity extends Activity {
 
 
         public void recount(){
-            new_step_field = new int[WIDTH][HEIGHT];
+            int[][] new_step_field = new int[WIDTH][HEIGHT];
             for (int i = 0; i < WIDTH; ++i) {
                 for (int j = 0; j < HEIGHT; ++j) {
                     new_step_field[i][j] = field[i][j];
-                    if (i < WIDTH - 1 && (field[i][j] + 1) % 16 == field[i + 1][j]) {
+                    if (i < WIDTH - 1 && (field[i][j] + 1) % num_of_colors == field[i + 1][j]) {
                         new_step_field[i][j] = field[i + 1][j];
-                    } else if (j < HEIGHT - 1 && (field[i][j] + 1) % 16 == field[i][j + 1]) {
+                    } else if (j < HEIGHT - 1 && (field[i][j] + 1) % num_of_colors == field[i][j + 1]) {
                         new_step_field[i][j] = field[i][j + 1];
-                    } else if (i < WIDTH - 1 && j < HEIGHT - 1 && (field[i][j] + 1) % 16 == field[i + 1][j + 1]) {
+                    } else if (i < WIDTH - 1 && j < HEIGHT - 1 && (field[i][j] + 1) % num_of_colors == field[i + 1][j + 1]) {
                         new_step_field[i][j] = field[i + 1][j + 1];
-                    } else if (i > 0 && (field[i][j] + 1) % 16 == field[i - 1][j]) {
+                    } else if (i > 0 && (field[i][j] + 1) % num_of_colors == field[i - 1][j]) {
                         new_step_field[i][j] = field[i - 1][j];
-                    } else if (j > 0 && (field[i][j] + 1) % 16 == field[i][j - 1]) {
+                    } else if (j > 0 && (field[i][j] + 1) % num_of_colors == field[i][j - 1]) {
                         new_step_field[i][j] = field[i][j - 1];
-                    } else if (i > 0 && j > 0 && (field[i][j] + 1) % 16 == field[i - 1][j - 1]) {
+                    } else if (i > 0 && j > 0 && (field[i][j] + 1) % num_of_colors == field[i - 1][j - 1]) {
                         new_step_field[i][j] = field[i - 1][j - 1];
-                    } else if (i > 0 && j < HEIGHT - 1 && (field[i][j] + 1) % 16 == field[i - 1][j + 1]) {
+                    } else if (i > 0 && j < HEIGHT - 1 && (field[i][j] + 1) % num_of_colors == field[i - 1][j + 1]) {
                         new_step_field[i][j] = field[i - 1][j + 1];
-                    } else if (i < WIDTH - 1 && j > 0 && (field[i][j] + 1) % 16 == field[i + 1][j - 1]) {
+                    } else if (i < WIDTH - 1 && j > 0 && (field[i][j] + 1) % num_of_colors == field[i + 1][j - 1]) {
                         new_step_field[i][j] = field[i + 1][j - 1];
                     }
                 }
@@ -99,7 +96,7 @@ public class WhirlActivity extends Activity {
         public void run() {
             while (thread_is_running) {
                 if (surfaceHolder.getSurface().isValid()) {
-                    Canvas canvas = surfaceHolder.lockCanvas();
+                    canvas = surfaceHolder.lockCanvas();
                     recount();
                     onDraw(canvas);
                     surfaceHolder.unlockCanvasAndPost(canvas);
@@ -114,9 +111,9 @@ public class WhirlActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+       //getWindow().setFlags(
+       //         WindowManager.LayoutParams.FLAG_FULLSCREEN,
+       //         WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(new WhirlView(this));
 
     }
