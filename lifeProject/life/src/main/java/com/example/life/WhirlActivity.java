@@ -9,31 +9,37 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.SurfaceView;
 import android.graphics.Color;
-import java.util.Random;
+import android.graphics.Bitmap;
 import android.view.WindowManager;
+
+import java.util.Random;
+
+
 
 public class WhirlActivity extends Activity {
 
 
     class WhirlView extends SurfaceView implements Runnable {
         Paint p;
-        final int  WIDTH = 240;
+        final int WIDTH = 240;
         final int HEIGHT = 320;
         final int num_of_colors = 12;
         int[][] field;
+        int cnt = 0, fps = 0;
         int[] colors = {Color.GREEN, Color.YELLOW, Color.BLUE, Color.GRAY, Color.CYAN, Color.RED, Color.WHITE, Color.BLACK, Color.DKGRAY, Color.LTGRAY, Color.MAGENTA,
-                          Color.TRANSPARENT};
-        Thread thread = null;
+                Color.TRANSPARENT};
+        int[] colored_field;
+        Thread thread;
         volatile boolean thread_is_running = true;
         SurfaceHolder surfaceHolder;
         long start_time, end_time;
-        int[][] new_step_field;
         Canvas canvas;
 
         public WhirlView(Context context) {
             super(context);
             p = new Paint();
             field = new int[WIDTH][HEIGHT];
+            colored_field = new int[320 * 240];
             Random rand = new Random();
             for (int i = 0; i < WIDTH; ++i)
                 for (int j = 0; j < HEIGHT; ++j) {
@@ -47,26 +53,32 @@ public class WhirlActivity extends Activity {
 
         @Override
         public void onDraw(Canvas canvas) {
-            for (int i = 0; i < WIDTH; ++i) {
-                for (int j = 0; j < HEIGHT; ++j) {
-                    p.setColor(colors[field[i][j]]);
-                    canvas.drawRect(3 * i, 4 * j, 3 * (i + 1), 4 * (j + 1), p);
-                    //canvas.drawBitmap(colors, field[i][j], 1, i, j, 3, 4, false, p);
 
+            int k = 0;
+            for (int i = 0; i < HEIGHT; ++i) {
+                for (int j = 0; j < WIDTH; ++j) {
+                    colored_field[k++] = colors[field[j][i]];
                 }
             }
+            canvas.scale(3, 4);
+            canvas.drawBitmap(colored_field, 0, 240, 0, 0, 240, 320, true, p);
             p.setColor(Color.BLACK);
             canvas.drawRect(0, 0, 100, 50, p);
             p.setColor(Color.YELLOW);
             p.setTextSize(20);
             end_time = System.currentTimeMillis();
+            if(cnt >= fps){
+                fps = (int)(1000 / (end_time - start_time));
+
+                cnt = 0;
+            }
             canvas.drawText("FPS: " + 1000 / (end_time - start_time), 10, 30, p);
             start_time = end_time;
+            cnt++;
         }
 
 
-
-        public void recount(){
+        public void recount() {
             int[][] new_step_field = new int[WIDTH][HEIGHT];
             for (int i = 0; i < WIDTH; ++i) {
                 for (int j = 0; j < HEIGHT; ++j) {
@@ -111,9 +123,9 @@ public class WhirlActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       //getWindow().setFlags(
-       //         WindowManager.LayoutParams.FLAG_FULLSCREEN,
-       //         WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         setContentView(new WhirlView(this));
 
     }
