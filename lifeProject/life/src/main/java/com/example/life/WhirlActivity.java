@@ -62,16 +62,16 @@ public class WhirlActivity extends Activity {
             canvas.scale(3, 4);
             canvas.drawBitmap(colored_field, 0, 240, 0, 0, 240, 320, true, p);
             p.setColor(Color.BLACK);
-            canvas.drawRect(0, 0, 100, 50, p);
+            canvas.drawRect(0, 0, 50, 15, p);
             p.setColor(Color.YELLOW);
-            p.setTextSize(20);
+            p.setTextSize(10);
             end_time = System.currentTimeMillis();
             if(cnt >= fps){
                 fps = (int)(1000 / (end_time - start_time));
 
                 cnt = 0;
             }
-            canvas.drawText("FPS: " + 1000 / (end_time - start_time), 10, 30, p);
+            canvas.drawText("FPS: " + fps, 5, 10, p);
             start_time = end_time;
             cnt++;
         }
